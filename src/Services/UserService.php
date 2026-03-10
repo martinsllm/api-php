@@ -52,4 +52,25 @@ class UserService
             return ['error' => $e->getMessage()];
         }
     }
+
+    public static function fetch(mixed $authorization)
+    {
+        try {
+            if(isset($authorization['error'])) {
+                return ['error' => $authorization['error']];
+            }
+            
+            $userFromJWT = JWT::verify($authorization);
+
+            if (!$userFromJWT) return ['unauthorized'=> "Please, login to access this resource."];
+
+            $user = User::find($userFromJWT['id']);
+
+            if (!$user) return ['error'=> 'Sorry, we could not find your account.'];
+
+            return $user;
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
 }

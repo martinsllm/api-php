@@ -44,7 +44,19 @@ class UserController
 
     public function fetch(Request $request, Response $response)
     {
-        
+        $authorization = Request::authorization();
+
+        $userData = UserService::fetch($authorization);
+
+        if (isset($userData['error'])) {
+            return $response::json([
+                'error' => $userData['error']
+            ], 400);
+        }
+
+        $response::json([
+            'jwt' => $userData
+        ]);
     }
 
     public function update(Request $request, Response $response)

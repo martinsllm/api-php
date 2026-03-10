@@ -14,16 +14,29 @@ class Jwt
         $base64UrlHeader  = self::base64url_encode($header);
         $base64UrlPayload = self::base64url_encode($payload);
         
-        $signature = self::signature($base64UrlHeader, $base64UrlPayload, self::$secret);
+        $signature = self::signature($base64UrlHeader, $base64UrlPayload);
 
         $jwt = $base64UrlHeader . '.' . $base64UrlPayload . '.' . $signature;
 
         return $jwt;
     }
 
-    public static function signature(string $header, string $payload, string $secret)
+    public static function verify(string $jwt)
     {
-        $signature = hash_hmac('SHA256', $header . '.' . $payload, $secret, true);
+        $tokenPartials = explode('.', $jwt);
+
+        if (count($tokenPartials) != 3) return false;
+
+        [$header, $payload, $signature] = $tokenPartials;
+
+        if ($signature !== self::signature($header, $payload)) return false;
+
+        return self::base64url_decode($payload);
+    }
+
+    public static function signature(string $header, string $payload)
+    {
+        $signature = hash_hmac('SHA256', $header . '.' . $payload, self::$secret, true);
 
         return self::base64url_encode($signature);
     }
