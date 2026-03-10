@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Jwt;
 use App\Utils\Validator;
 use App\Models\User;
 
@@ -29,6 +30,26 @@ class UserService
            return ['error' => $e->getMessage()];
         }catch (\Exception $e) {
            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public static function auth(array $data)
+    {
+        try {
+            $validatedFields = Validator::validate([
+                'email' => $data['email'] ?? '',
+                'password' => $data['password'] ?? '',
+            ]);
+
+            $user = User::authentication($validatedFields);
+
+            if(!$user) {
+                return ['error' => 'E-mail or password incorrect'];
+            }
+
+            return Jwt::generate($user);
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
         }
     }
 }

@@ -27,7 +27,19 @@ class UserController
 
     public function login(Request $request, Response $response)
     {
-        
+        $body = $request::body();
+
+        $userData = UserService::auth($body);
+
+        if (isset($userData['error'])) {
+            return $response::json([
+                'error' => $userData['error']
+            ], 400);
+        }
+
+        $response::json([
+            'jwt' => $userData
+        ]);
     }
 
     public function fetch(Request $request, Response $response)
