@@ -51,4 +51,24 @@ class User extends Database
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public static function update(int|string $id, array $data)
+    {
+        $pdo = self::getConnection();
+
+        $stmt = $pdo->prepare('UPDATE users SET name = ? WHERE id = ?');
+        $stmt->execute([$data['name'], $id]);
+
+        return $stmt->rowCount() > 0 ? true : false;
+    }
+
+    public static function delete(int|string $id)
+    {
+        $pdo = self::getConnection();
+
+        $stmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
+        $stmt->execute([$id]);
+
+        return $stmt->rowCount() > 0 ? true : false;
+    }
 }

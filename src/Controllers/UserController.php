@@ -61,11 +61,43 @@ class UserController
 
     public function update(Request $request, Response $response)
     {
-        
+        $authorization = Request::authorization();
+
+        $body = $request::body();
+
+        $userData = UserService::update($authorization, $body);
+
+        if (isset($userData['error'])) {
+            return $response::json([
+                'error' => $userData['error']
+            ], 400);
+        }
+
+        $response::json([
+            'data' => $userData
+        ]);
     }
 
     public function remove(Request $request, Response $response, array $id)
     {
-        
+        $authorization = $request::authorization();
+
+        $userService = UserService::delete($authorization, $id[0]);
+
+        if (isset($userService['unauthorized'])) {
+            return $response::json([
+                'message' => $userService['unauthorized']
+            ], 401);
+        }
+
+        if (isset($userService['error'])) {
+            return $response::json([
+                'message' => $userService['error']
+            ], 400);
+        }
+
+        $response::json([
+            'message' => $userService
+        ], 200);
     }
 }

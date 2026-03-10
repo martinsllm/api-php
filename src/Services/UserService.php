@@ -73,4 +73,52 @@ class UserService
             return ['error' => $e->getMessage()];
         }
     }
+
+    public static function update(mixed $authorization, array $data)
+    {
+        try {
+            if (isset($authorization['error'])) {
+                return ['unauthorized'=> $authorization['error']];
+            }
+
+            $userFromJWT = JWT::verify($authorization);
+
+            if (!$userFromJWT) return ['unauthorized'=> "Please, login to access this resource."];
+
+            $fields = Validator::validate([
+                'name' => $data['name'] ?? ''
+            ]);
+
+            $user = User::update($userFromJWT['id'], $fields);
+
+            if (!$user) return ['error'=> 'Sorry, we could not update your account.'];
+
+            return "User updated successfully!";
+        } 
+        catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public static function delete(mixed $authorization, int|string $id)
+    {
+        try {
+            if (isset($authorization['error'])) {
+                return ['unauthorized'=> $authorization['error']];
+            }
+
+            $userFromJWT = JWT::verify($authorization);
+
+            if (!$userFromJWT) return ['unauthorized'=> "Please, login to access this resource."];
+
+            $user = User::delete($id);
+
+            if (!$user) return ['error'=> 'Sorry, we could not delete your account.'];
+
+            return "User deleted successfully!";
+        } 
+        catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
 }
